@@ -33,6 +33,9 @@ program.option("--initConsensusStateBytes <initConsensusStateBytes>",
     "init consensusState bytes, hex encoding, no prefix with 0x",
     "42696e616e63652d436861696e2d4e696c650000000000000000000000000000000000000000000229eca254b3859bffefaf85f4c95da9fbd26527766b784272789c30ec56b380b6eb96442aaab207bc59978ba3dd477690f5c5872334fc39e627723daa97e441e88ba4515150ec3182bc82593df36f8abb25a619187fcfab7e552b94e64ed2deed000000e8d4a51000");
 
+program.option("--mock <mock>",
+    "if use mock",
+    false);
 
 require("./generate-system");
 require("./generate-systemReward");
@@ -95,16 +98,16 @@ function compileContract(key, contractFile, contractName) {
 }
 
 // compile files
-Promise.all([
+let contracts = [
   compileContract(
-    "validatorContract",
-    "contracts/BSCValidatorSet.sol",
-    "BSCValidatorSet"
+      "validatorContract",
+      "contracts/BSCValidatorSet.sol",
+      "BSCValidatorSet"
   ),
   compileContract(
-    "systemRewardContract",
-    "contracts/SystemReward.sol",
-    "SystemReward"
+      "systemRewardContract",
+      "contracts/SystemReward.sol",
+      "SystemReward"
   ),
   compileContract(
       "slashContract",
@@ -112,19 +115,9 @@ Promise.all([
       "SlashIndicator"
   ),
   compileContract(
-      "tendermintLightClient",
-      "contracts/TendermintLightClient.sol",
-      "TendermintLightClient"
-  ),
-  compileContract(
       "tokenHub",
       "contracts/TokenHub.sol",
       "TokenHub"
-  ),
-  compileContract(
-      "relayerHub",
-      "contracts/RelayerHub.sol",
-      "RelayerHub"
   ),
   compileContract(
       "relayerIncentivize",
@@ -147,11 +140,36 @@ Promise.all([
       "CrossChain"
   ),
   compileContract(
-    "staking",
-    "contracts/Staking.sol",
-    "Staking"
+      "staking",
+      "contracts/Staking.sol",
+      "Staking"
   )
-]).then(result => {
+];
+
+if(!program.mock) {
+  contracts.push(compileContract(
+      "relayerHub",
+      "contracts/RelayerHub.sol",
+      "RelayerHub"
+  ));
+  contracts.push(compileContract(
+      "tendermintLightClient",
+      "contracts/TendermintLightClient.sol",
+      "TendermintLightClient"
+  ));
+} else {
+  contracts.push(compileContract(
+      "relayerHub",
+      "contracts/mock/MockRelayerHub.sol",
+      "MockRelayerHub"
+  ));
+  contracts.push(compileContract(
+      "tendermintLightClient",
+      "contracts/mock/MockLightClient.sol",
+      "MockLightClient"
+  ));
+}
+Promise.all(contracts).then(result => {
 
 program.option("--initLockedBNBOnTokenHub <initLockedBNBOnTokenHub>",
     "initLockedBNBOnTokenHub",
