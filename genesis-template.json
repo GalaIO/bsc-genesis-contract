@@ -16,6 +16,8 @@
     "mirrorSyncBlock":1,
     "brunoBlock": 1,
     "eulerBlock": 2,
+    "gibbsBlock": 2,
+    "fourierBlock": 300,
     "parlia": {
       "period": 3,
       "epoch": 200
